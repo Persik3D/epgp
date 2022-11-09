@@ -136,10 +136,31 @@ function mod:CanUndo()
     return #self.db.profile.log ~= 0
 end
 
+function mod:GetLastActionForUndo()
+    local skip_count = 0
+
+    for i = #self.db.profile.log, 1, -1 do
+        local log = self.db.profile.log[i]
+
+        local is_undo = string.starts(log[4], L["Undo"])
+        if not is_undo and skip_count == 0 then
+            return log
+        end
+
+        if is_undo then
+            skip_count = skip_count + 1
+        else
+            skip_count = skip_count - 1
+        end
+    end
+
+    return nil
+end
+
 function mod:UndoLastAction()
     assert(#self.db.profile.log ~= 0)
 
-    local record = table.remove(self.db.profile.log)
+    local record = mod:GetLastActionForUndo()
     table.insert(self.db.profile.redo, record)
 
     local timestamp, kind, name, reason, amount, officer = unpack(record)
@@ -171,7 +192,7 @@ end
 function mod:RedoLastUndo()
     assert(#self.db.profile.redo ~= 0)
 
-    local record = table.remove(self.db.profile.redo)
+    local record = next(self.db.profile.redo)
     local timestamp, kind, name, reason, amount, officer = unpack(record)
 
     local ep, gp, main = EPGP:GetEPGP(name)
