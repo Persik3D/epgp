@@ -455,6 +455,8 @@ function mod:EPGP_SYNC_LOG(tag, msg, channel, sender)
         if timestamp then
             local log = { tonumber(timestamp), kind, name, reason, tonumber(amount), officer }
             table.insert(mod.db.profile.log, log)
+            exists_logs[msg] = 1
+            
             if CheckFilter(log, mod.db.profile.filter) then
                 table.insert(mod.db.profile.filtred_logs, log)
             end
