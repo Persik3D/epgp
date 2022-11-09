@@ -54,6 +54,8 @@ local function AppendToLog(kind, event_type, name, reason, amount, mass, undo)
 
     local entry = { GetTimestamp(), kind, name, reason, amount, UnitName("player")}
     table.insert(mod.db.profile.log, entry)
+    exists_logs[string.format(LOG_FORMAT_NEW, unpack(entry))] = true
+
     if CheckFilter(entry, mod.db.profile.filter) then
         table.insert(mod.db.profile.filtred_logs, entry)
     end
@@ -76,6 +78,7 @@ function mod:LogSync(prefix, msg, distribution, sender)
             if CheckFilter(entry, mod.db.profile.filter) then
                 table.insert(mod.db.profile.filtred_logs, entry)
             end
+            exists_logs[string.format(LOG_FORMAT_NEW, unpack(entry))] = true
             callbacks:Fire("LogChanged", #self.db.profile.log)
         end
     end
@@ -199,9 +202,11 @@ function mod:RedoLastUndo()
     if kind == "EP" then
         EPGP:IncEPBy(name, L["Redo"] .. " " .. reason, amount, false, true)
         table.insert(self.db.profile.log, record)
+        exists_logs[string.format(LOG_FORMAT_NEW, unpack(record))] = true
     elseif kind == "GP" then
         EPGP:IncGPBy(name, L["Redo"] .. " " .. reason, amount, false, true)
         table.insert(self.db.profile.log, record)
+        exists_logs[string.format(LOG_FORMAT_NEW, unpack(record))] = true
     else
         assert(false, "Unknown record in the log")
     end
@@ -364,6 +369,7 @@ function mod:Import(jsonStr)
         local record = table.remove(self.db.profile.redo)
         if record[1] < timestamp then
             table.insert(self.db.profile.log, record)
+            exists_logs[string.format(LOG_FORMAT_NEW, unpack(record))] = true
         end
     end
 
@@ -381,7 +387,7 @@ mod.dbDefaults = {
 local sync_logs = {}
 local sync_players_in_progress = {}
 local self_player_name = UnitName("player")
-local exists_logs = {}
+exists_logs = {}
 function mod:EPGP_SYNC_REQUEST(tag, msg, channel, sender)
     if channel ~= "GUILD" then
         return
