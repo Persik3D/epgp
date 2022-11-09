@@ -450,8 +450,9 @@ function mod:EPGP_SYNC_LOG(tag, msg, channel, sender)
     if not member_exists then
         table.insert(members_with_logs, sender)
     end
+    sync_logs[msg] = members_with_logs
 
-    if #members_with_logs == 1 then
+    if #members_with_logs == 2 then
         local timestamp, kind, name, reason, amount, officer = deformat(msg, LOG_FORMAT_NEW)
         if not timestamp then
             timestamp, kind, name, reason, amount = deformat(msg, LOG_FORMAT)
@@ -470,7 +471,7 @@ function mod:EPGP_SYNC_LOG(tag, msg, channel, sender)
         end
     end
 
-    if #members_with_logs >= 1 then
+    if #members_with_logs >= 2 then
         return
     end
 
