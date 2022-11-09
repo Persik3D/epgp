@@ -30,19 +30,7 @@ local callbacks = mod.callbacks
 
 local timestamp_t = {}
 local function GetTimestamp(diff)
-    timestamp_t.month = select(2, CalendarGetDate())
-    timestamp_t.day = select(3, CalendarGetDate())
-    timestamp_t.year = select(4, CalendarGetDate())
-    timestamp_t.hour = select(1, GetGameTime())
-    timestamp_t.min = select(2, GetGameTime())
-    if diff then
-        timestamp_t.month = timestamp_t.month + (diff.month or 0)
-        timestamp_t.day = timestamp_t.day + (diff.day or 0)
-        timestamp_t.year = timestamp_t.year + (diff.year or 0)
-        timestamp_t.hour = timestamp_t.hour + (diff.hour or 0)
-        timestamp_t.min = timestamp_t.min + (diff.min or 0)
-    end
-    return time(timestamp_t)
+    return time()
 end
 
 local function CheckFilter(log, str)
@@ -232,7 +220,7 @@ function mod:TrimToOneMonth()
     -- one item at a time since this will result in O(n^2) time. So we
     -- build it anew.
     local new_log = {}
-    local last_timestamp = GetTimestamp({ month = -1 })
+    local last_timestamp = GetTimestamp() - 60 * 60 * 24 * 30
 
     -- Go through the log in reverse order and stop when we reach an
     -- entry older than one month.
