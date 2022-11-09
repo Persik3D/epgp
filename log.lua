@@ -453,12 +453,12 @@ function mod:EPGP_SYNC_LOG(tag, msg, channel, sender)
         end
 
         if timestamp then
-            local log = { tonumber(timestamp), kind, name, reason, tonumber(amount), officer }
-            table.insert(mod.db.profile.log, log)
-            exists_logs[msg] = 1
-            
-            if CheckFilter(log, mod.db.profile.filter) then
-                table.insert(mod.db.profile.filtred_logs, log)
+            local entry = { tonumber(timestamp), kind, name, reason, tonumber(amount), officer }
+            table.insert(mod.db.profile.log, entry)
+            exists_logs[msg] = true
+
+            if CheckFilter(entry, mod.db.profile.filter) then
+                table.insert(mod.db.profile.filtred_logs, entry)
             end
             callbacks:Fire("LogChanged", #self.db.profile.log)
         end
@@ -540,7 +540,7 @@ function mod:OnEnable()
 
     for _, log in pairs(logs) do
         log[6] = log[6] or "Unknown"
-        exists_logs[string.format(LOG_FORMAT_NEW, unpack(log))] = 1
+        exists_logs[string.format(LOG_FORMAT_NEW, unpack(log))] = true
     end
 
     -- This is kept for historical reasons. See:
