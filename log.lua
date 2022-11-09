@@ -41,7 +41,7 @@ local LOG_FORMAT = "LOG:%d\31%s\31%s\31%s\31%d"
 local LOG_FORMAT_NEW = "LOG:%d\31%s\31%s\31%s\31%d\31%s"
 
 local function log(...)
-    print("EPGP_SYNC", ...)
+    -- print("EPGP_SYNC", ...)
 end
 
 local function AppendToLog(kind, event_type, name, reason, amount, mass, undo)
